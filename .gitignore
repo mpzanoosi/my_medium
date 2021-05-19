@@ -1,0 +1,8 @@
+# ignore everything
+*
+
+# but not these files and subdirectories
+!.gitignore
+!CMakeLists.txt
+!README.md
+!*.[hc]
