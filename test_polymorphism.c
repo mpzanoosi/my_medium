@@ -3,6 +3,8 @@
 #include <time.h>
 #include "list.h"
 
+// program which includes codes of my medium post about polymorphism
+
 #define structinit(type, name) \
 	type *name = (type *)malloc(sizeof(type))
 
@@ -57,32 +59,33 @@ struct rectangular *new_rect(int id, double width, double length)
 void shape_printArea(struct shape *this)
 {
     struct shape_spirit *temp = (struct shape_spirit *)this;
-    printf("area = %f\n", temp->_shape.area);
+    printf("shape area = %f\n", temp->_shape.area);
 }
-
-void func();
 
 int main()
 {
-    func();
-    // LIST_HEAD(shape_list);
-    // // making a square and a rectangular
-    // struct square *square1 = new_square(1, 10.5);
-    // struct rectangular *rect1 = new_rect(2, 2.76, 5.5);
-    // // adding all objects into a unified list (this is the magic)
-    // list_add_tail(&square1->_list, &shape_list);
-    // list_add_tail(&rect1->_list, &shape_list);
+    LIST_HEAD(shape_list);
+    // making a square and a rectangular
+    struct square *square1 = new_square(1, 10.5);
+    struct rectangular *rect1 = new_rect(2, 2.76, 5.5);
+    // adding all objects into a unified list (this is the magic)
+    list_add_tail(&square1->_list, &shape_list);
+    list_add_tail(&rect1->_list, &shape_list);
     
-    // // now let's traverse the list
-    // struct shape *iter;
-    // list_for_each_entry(iter, &shape_list, _list) {
-    //     shape_printArea(iter);
-    // }
+    // now let's traverse the list
+    struct shape *iter;
+    list_for_each_entry(iter, &shape_list, _list) {
+        shape_printArea(iter);
+    }
+
+    // freeing memory
+    free(square1);
+    free(rect1);
 
 	return 0;
 }
 
-void func()
+void first_attempt()
 {
     // making shape_list
     LIST_HEAD(shape_list);
