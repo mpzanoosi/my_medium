@@ -2,6 +2,11 @@
 Linux kernel doubly linked-list example codes relating to my medium post\
 [Why Linux kernel doubly linked-list is not just a simple linked-list?!](https://medium.com/@m.zanoosi/why-linux-kernel-doubly-linked-list-is-not-just-a-simple-linked-list-fb8c43ff150)
 
+`test_timing.c`: program to compare timing of old-style and new-style linked-list implementations\
+`test_nested_list.c`: program to implement and test nested linked list concept\
+`test_polymorphism.c`: program to implement and test true polymorphism in C (see my medium post)\
+`test_inhertiance.c`: program to implement and test inheritance in C (not developed yet)\
+
 # build and test run
 ```
 mkdir build
