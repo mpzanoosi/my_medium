@@ -12,90 +12,165 @@
 	memcpy(obj_copy, obj, sizeof(typeof(obj))); })
 
 struct person {
-    char *name , *familyname, *fullname;
-    char *eye_color;
+    char *name, *firstname, *lastname;
+    char *sex;
+    char *eyecolor, *skincolor;
+    struct person *mom, *dad;
     struct list_head children;
+    struct list_head _list_dad;
+    struct list_head _list_mom;
 };
 
-#define heritage \
-    char *familyname; \
-    char *eye_color;
-
-struct child {
-    heritage;
-    char *gender;
-    char *name;
-    struct person *dad, *mom;
-    struct list_head _list;
-};
-
-void test_inheritance()
+char *make_lastname(struct person *dad, struct person *mom)
 {
-
+    char *lastname = (char *)malloc((size_t)(strlen(dad->lastname) + strlen(mom->lastname) + 2));
+    sprintf(lastname, "%s-%s", dad->lastname, mom->lastname);
+    return lastname;
 }
 
-struct person *new_person(char *name, char *familyname, char *eye_color)
+char *make_fullname(struct person *p)
 {
-    structinit(struct person, person_new);
-    person_new->name = strdup(name);
-    person_new->familyname = strdup(familyname);
-    person_new->fullname = (char *)malloc((size_t)(strlen(name) + strlen(familyname) + 2));
-    sprintf(person_new->fullname, "%s %s", name, familyname);
-    person_new->eye_color = strdup(eye_color);
-    INIT_LIST_HEAD(&person_new->children);
-    return person_new;
+    char *fullname = (char *)malloc((size_t)(strlen(p->firstname) + strlen(p->lastname) + 2));
+    sprintf(fullname, "%s %s", p->firstname, p->lastname);
+    return fullname;
 }
 
-struct child *new_child(struct person *dad, struct person *mom, char *gender, char *name)
+struct person *new_child(struct person *dad, struct person *mom,
+    char *givenname, char *sex)
 {
+    // this is like programming sex somehow, lol
     // making a new child
-    // this is kind of having sex in programming, lol
-    structinit(struct child, child_new);
-    // applying inheritance:
-    // inheritance is defined not only through its
-    // pettern (children are made with two people,
-    // mom and dad), but also should define which 
-    // person objects should be used exactly (dad
-    // and mom pointers)
-    child_new->familyname = strdup(dad->familyname);
-    child_new->eye_color = strdup(mom->eye_color);
-    // giving specific parts
-    child_new->gender = strdup(gender);
-    child_new->name = strdup(name);
-
-    // child_new should be added to the list of mom and dad children
-    list_add_tail(&child_new->_list, &dad->children);
-    list_add_tail(&child_new->_list, &mom->children);
-    // setting mom and dad pointers
+    structinit(struct person, child_new);
+    child_new->firstname = strdup(givenname);
+    child_new->lastname = make_lastname(dad, mom);
+    child_new->name = make_fullname(child_new);
+    child_new->sex = strdup(sex);
+    // this is where we *do* inheritance
+    // inheritance pattern:
+    //    - eyecolor is inherited from mom
+    //    - skincolor is inherited from dad
+    // inheritance:
+    //    - child_new->eyecolor is filled with 'mom' object
+    //    - child_new->skincolor is filled with 'dad' object
+    // 
+    // in this example inheritance pattern is "fixed":
+    //    eyecolor is always inherited from mom and 
+    //    skincolor is always inherited from dad
+    // in this example inheritance is "flexible":
+    //    each child_new object is going to be set up
+    //    with different 'dad' and 'mom' objects
+    child_new->eyecolor = strdup(mom->eyecolor);
+    child_new->skincolor = strdup(dad->skincolor);
+    // now filling mom/dad pointers for this children
     child_new->mom = mom;
     child_new->dad = dad;
+    // adding new child into the children list of mom and dad
+    list_add_tail(&child_new->_list_mom, &mom->children);
+    list_add_tail(&child_new->_list_dad, &dad->children);
+    INIT_LIST_HEAD(&child_new->children);
 
     return child_new;
 }
 
-void print_child(struct child *ch)
+struct person *new_person(char *firstname, char *lastname, char *sex, char *eyecolor, char *skincolor,
+    struct person *dad, struct person *mom)
 {
-    printf("child information:\n");
-    printf("\tname = '%s'\n", ch->name);
-    printf("\tfamily name = '%s'\n", ch->familyname);
-    printf("\tgender = '%s'\n", ch->gender);
-    printf("\teye color = '%s'\n", ch->eye_color);
-    printf("\tMom = '%s'\n", ch->mom->fullname);
-    printf("\tDad = '%s'\n", ch->dad->fullname);
+    // making a new person object
+    structinit(struct person, person_new);
+    INIT_LIST_HEAD(&person_new->_list_dad);
+    INIT_LIST_HEAD(&person_new->_list_mom);
+    // naming
+    person_new->firstname = strdup(firstname);
+    person_new->lastname = strdup(lastname);
+    person_new->name = strdup(firstname);
+    strcat(person_new->name, " ");
+    strcat(person_new->name, lastname);
+    // characteristics
+    person_new->sex = strdup(sex);
+    person_new->eyecolor = strdup(eyecolor);
+    person_new->skincolor = strdup(skincolor);
+    // internal pointers
+    person_new->dad = dad;
+    person_new->mom = mom;
+    // children list
+    INIT_LIST_HEAD(&person_new->children);
+    // returning new pointer
+    return person_new;
 }
 
-void test_multiinheritance()
+void print_person_(struct person *p, int firstlineprint)
 {
-    struct person *dad1 = new_person("Ross", "Geller", "dark");
-    struct person *mom1 = new_person("Rachel", "Green", "blue");
-    struct child *child1 = new_child(dad1, mom1, "girl", "Emma");
-    print_child(child1);
+    if (firstlineprint) {
+        printf("Informaion of %s:\n", p->firstname);
+    }
+
+    printf("\tname = %s\n", p->name);
+    printf("\tsex = %s\n", p->sex);
+    printf("\teyecolor = %s\n", p->eyecolor);
+    printf("\tskincolor = %s\n", p->skincolor);
+    // printing mom and dad
+    if (p->mom) {
+        printf("\tmom:\n");
+        print_person_(p->mom, 0);
+    }
+    if (p->dad) {
+        printf("\tdad:\n");
+        print_person_(p->dad, 0);
+    }
+    // printing children
+    if (!list_empty(&p->children)) {
+        printf("\tchildren:\n");
+        struct person *iter;
+        if (!strcmp(p->sex, "female")) {
+            list_for_each_entry(iter, &p->children, _list_mom) {
+                printf("\t\t%s\n", iter->name);
+            }
+        } else {
+            list_for_each_entry(iter, &p->children, _list_dad) {
+                printf("\t\t%s\n", iter->name);
+            }
+        }
+    }
+}
+
+void print_person(struct person* p)
+{
+    int firstlineprint = 1;
+    print_person_(p, firstlineprint);
+}
+
+void destroy_person(struct person *p)
+{
+    free(p->firstname);
+    free(p->lastname);
+    free(p->name);
+    free(p->sex);
+    free(p->eyecolor);
+    free(p->skincolor);
+    list_del(&p->_list_dad);
+    list_del(&p->_list_mom);
+    free(p);
+}
+
+void test_inheritance()
+{
+    struct person *ross = new_person("Ross", "Geller", "male", "dark", "brown", NULL, NULL);
+    struct person *rachel = new_person("Rachel", "Green", "female", "blue", "brown", NULL, NULL);
+    struct person *emma = new_child(ross, rachel, "Emma", "female");
+    print_person(ross);
+    print_person(rachel);
+    print_person(emma);
+
+    // freeing memory
+    destroy_person(rachel);
+    destroy_person(ross);
+    destroy_person(emma);
 }
 
 int main()
 {
     test_inheritance();
-    test_multiinheritance();
+    // test_multiinheritance();
 
     return 0;
 }
