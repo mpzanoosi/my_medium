@@ -17,8 +17,11 @@ struct person {
     char *eyecolor, *skincolor;
     struct person *mom, *dad;
     struct list_head children;
+    
     struct list_head _list_dad;
     struct list_head _list_mom;
+
+    struct list_head _list;
 };
 
 char *make_lastname(struct person *dad, struct person *mom)
@@ -119,17 +122,18 @@ void print_person_(struct person *p, int firstlineprint)
     }
     // printing children
     if (!list_empty(&p->children)) {
-        printf("\tchildren:\n");
+        printf("\tchildren:");
         struct person *iter;
         if (!strcmp(p->sex, "female")) {
             list_for_each_entry(iter, &p->children, _list_mom) {
-                printf("\t\t%s\n", iter->name);
+                printf(" %s ", iter->name);
             }
         } else {
             list_for_each_entry(iter, &p->children, _list_dad) {
-                printf("\t\t%s\n", iter->name);
+                printf(" %s ", iter->name);
             }
         }
+        printf("\n");
     }
 }
 
