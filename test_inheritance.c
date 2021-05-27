@@ -38,6 +38,32 @@ char *make_fullname(struct person *p)
     return fullname;
 }
 
+struct person *new_person(char *firstname, char *lastname, char *sex, char *eyecolor, char *skincolor,
+    struct person *dad, struct person *mom)
+{
+    // making a new person object
+    structinit(struct person, person_new);
+    INIT_LIST_HEAD(&person_new->_list_dad);
+    INIT_LIST_HEAD(&person_new->_list_mom);
+    // naming
+    person_new->firstname = strdup(firstname);
+    person_new->lastname = strdup(lastname);
+    person_new->name = strdup(firstname);
+    strcat(person_new->name, " ");
+    strcat(person_new->name, lastname);
+    // characteristics
+    person_new->sex = strdup(sex);
+    person_new->eyecolor = strdup(eyecolor);
+    person_new->skincolor = strdup(skincolor);
+    // internal pointers
+    person_new->dad = dad;
+    person_new->mom = mom;
+    // children list
+    INIT_LIST_HEAD(&person_new->children);
+    // returning new pointer
+    return person_new;
+}
+
 struct person *new_child(struct person *dad, struct person *mom,
     char *givenname, char *sex)
 {
@@ -73,32 +99,6 @@ struct person *new_child(struct person *dad, struct person *mom,
     INIT_LIST_HEAD(&child_new->children);
 
     return child_new;
-}
-
-struct person *new_person(char *firstname, char *lastname, char *sex, char *eyecolor, char *skincolor,
-    struct person *dad, struct person *mom)
-{
-    // making a new person object
-    structinit(struct person, person_new);
-    INIT_LIST_HEAD(&person_new->_list_dad);
-    INIT_LIST_HEAD(&person_new->_list_mom);
-    // naming
-    person_new->firstname = strdup(firstname);
-    person_new->lastname = strdup(lastname);
-    person_new->name = strdup(firstname);
-    strcat(person_new->name, " ");
-    strcat(person_new->name, lastname);
-    // characteristics
-    person_new->sex = strdup(sex);
-    person_new->eyecolor = strdup(eyecolor);
-    person_new->skincolor = strdup(skincolor);
-    // internal pointers
-    person_new->dad = dad;
-    person_new->mom = mom;
-    // children list
-    INIT_LIST_HEAD(&person_new->children);
-    // returning new pointer
-    return person_new;
 }
 
 void print_person_(struct person *p, int firstlineprint)
@@ -178,3 +178,4 @@ int main()
 
     return 0;
 }
+
