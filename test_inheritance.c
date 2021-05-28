@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <stdint.h>
 #include "list.h"
 
 #define structinit(type, name) \
@@ -101,6 +102,39 @@ struct person *new_child(struct person *dad, struct person *mom,
     return child_new;
 }
 
+struct person *new_child2(
+    struct person *dad, int dad_heritage_offset,
+    struct person *mom, int mom_heritage_offset,
+    char *givenname, 
+    char *sex)
+{
+    // this is like programming sex somehow, lol
+    // making a new child
+    structinit(struct person, child_new);
+    child_new->firstname = strdup(givenname);
+    child_new->lastname = make_lastname(dad, mom);
+    child_new->name = make_fullname(child_new);
+    child_new->sex = strdup(sex);
+    // this is where we *do* inheritance
+    // dad heritage
+    char **source_addr_dad = (char **)((char *)dad + dad_heritage_offset);
+    char **member_addr_dad = (char **)((char *)child_new + dad_heritage_offset);
+    *member_addr_dad = strdup(*source_addr_dad);
+    // mom heritage
+    char **source_addr_mom = (char **)((char *)mom + mom_heritage_offset);
+    char **member_addr_mom = (char **)((char *)child_new + mom_heritage_offset);
+    *member_addr_mom = strdup(*source_addr_mom);
+    // now filling mom/dad pointers for this children
+    child_new->mom = mom;
+    child_new->dad = dad;
+    // adding new child into the children list of mom and dad
+    list_add_tail(&child_new->_list_mom, &mom->children);
+    list_add_tail(&child_new->_list_dad, &dad->children);
+    INIT_LIST_HEAD(&child_new->children);
+
+    return child_new;
+}
+
 void print_person_(struct person *p, int firstlineprint)
 {
     if (firstlineprint) {
@@ -158,11 +192,14 @@ void destroy_person(struct person *p)
 
 void test_inheritance()
 {
-    struct person *ross = new_person("Ross", "Geller", "male", "dark", "brown", NULL, NULL);
+    struct person *ross = new_person("Ross", "Geller", "male", "dark", "white", NULL, NULL);
     struct person *rachel = new_person("Rachel", "Green", "female", "blue", "brown", NULL, NULL);
-    struct person *emma = new_child(ross, rachel, "Emma", "female");
-    print_person(ross);
-    print_person(rachel);
+    // struct person *emma = new_child(ross, rachel, "Emma", "female");
+    int dad_heritage_offset = list_offsetof(struct person, skincolor);
+    int mom_heritage_offset = list_offsetof(struct person, eyecolor);
+    struct person *emma = new_child2(ross, dad_heritage_offset, rachel, mom_heritage_offset, "Emma", "female");
+    // print_person(ross);
+    // print_person(rachel);
     print_person(emma);
 
     // freeing memory
