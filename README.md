@@ -20,10 +20,3 @@ make
 # valgrind memory check (need valgrind installation)
 valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./tests/test_polymorphism
 ```
-
----
-**NOTE**
-
-`test_inheritance.c` has not been developed completely
-
----
