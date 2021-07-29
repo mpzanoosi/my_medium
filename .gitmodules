@@ -1,0 +1,9 @@
+[submodule "medium_lkdl"]
+	path = medium_lkdl
+	url = https://github.com/mpzanoosi/medium_lkdl
+[submodule "medium_ci"]
+	path = medium_ci
+	url = https://github.com/mpzanoosi/medium_ci
+[submodule "medium_lib"]
+	path = medium_lib
+	url = https://github.com/mpzanoosi/medium_lib
